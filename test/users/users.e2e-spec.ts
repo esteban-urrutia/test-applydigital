@@ -3,11 +3,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as request from 'supertest';
-import { CreateUserDto } from '../../src/users/dto/create-user.dto';
-import { UsersModule } from '../../src/users/users.module';
+import { CreateProductDto } from '../../src/products/dto/create-product.dto';
+import { ProductsModule } from '../../src/products/products.module';
 
-describe('Users - /users (e2e)', () => {
-  const users = {
+describe('Products - /products (e2e)', () => {
+  const products = {
     id: 1,
     firstName: 'FirstName #1',
     lastName: 'LastName #1',
@@ -34,7 +34,7 @@ describe('Users - /users (e2e)', () => {
             synchronize: true,
           }),
         }),
-        UsersModule,
+        ProductsModule,
       ],
     }).compile();
 
@@ -42,36 +42,36 @@ describe('Users - /users (e2e)', () => {
     await app.init();
   });
 
-  it('Create [POST /users]', () => {
+  it('Create [POST /products]', () => {
     return request(app.getHttpServer())
-      .post('/users')
-      .send(users as CreateUserDto)
+      .post('/products')
+      .send(products as CreateProductDto)
       .expect(201)
       .then(({ body }) => {
-        expect(body).toEqual(users);
+        expect(body).toEqual(products);
       });
   });
 
-  it('Get all users [GET /users]', () => {
+  it('Get all products [GET /products]', () => {
     return request(app.getHttpServer())
-      .get('/users')
+      .get('/products')
       .expect(200)
       .then(({ body }) => {
         expect(body).toBeDefined();
       });
   });
 
-  it('Get one user [GET /users/:id]', () => {
+  it('Get one product [GET /products/:id]', () => {
     return request(app.getHttpServer())
-      .get('/users/2')
+      .get('/products/2')
       .expect(200)
       .then(({ body }) => {
         expect(body).toBeDefined();
       });
   });
 
-  it('Delete one user [DELETE /users/:id]', () => {
-    return request(app.getHttpServer()).delete('/users/1').expect(200);
+  it('Delete one product [DELETE /products/:id]', () => {
+    return request(app.getHttpServer()).delete('/products/1').expect(200);
   });
 
   afterAll(async () => {
