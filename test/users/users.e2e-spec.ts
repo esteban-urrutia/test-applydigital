@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as request from 'supertest';
 import { CreateUserDto } from '../../src/users/dto/create-user.dto';
 import { UsersModule } from '../../src/users/users.module';
@@ -18,15 +19,20 @@ describe('Users - /users (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
-        TypeOrmModule.forRoot({
-          type: 'postgres',
-          host: '127.0.0.1',
-          port: 5433,
-          username: 'root',
-          password: 'root',
-          database: 'test',
-          autoLoadEntities: true,
-          synchronize: true,
+        ConfigModule.forRoot(),
+        TypeOrmModule.forRootAsync({
+          imports: [ConfigModule],
+          inject: [ConfigService],
+          useFactory: (configService: ConfigService) => ({
+            type: 'postgres',
+            host: configService.get('TEST_DB_HOST'),
+            port: +configService.get('TEST_DB_PORT'),
+            username: configService.get('TEST_DB_USERNAME'),
+            password: configService.get('TEST_DB_PASSWORD'),
+            database: configService.get('TEST_DB_DATABASE'),
+            autoLoadEntities: true,
+            synchronize: true,
+          }),
         }),
         UsersModule,
       ],
