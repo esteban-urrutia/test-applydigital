@@ -1,18 +1,18 @@
-import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import * as request from 'supertest';
-import { CreateProductDto } from '../../src/products/dto/create-product.dto';
-import { ProductsModule } from '../../src/products/products.module';
+import { INestApplication } from "@nestjs/common";
+import { Test, TestingModule } from "@nestjs/testing";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import * as request from "supertest";
+import { CreateProductDto } from "../../src/products/dto/create-product.dto";
+import { ProductsModule } from "../../src/products/products.module";
 
-describe('Products - /products (e2e)', () => {
+describe("Products - /products (e2e)", () => {
   const products = {
     id: 1,
-    name: 'car 1',
-    category: 'cars',
+    name: "car 1",
+    category: "cars",
     price: 10,
-    date: new Date,
+    date: new Date(),
   };
 
   let app: INestApplication;
@@ -25,12 +25,12 @@ describe('Products - /products (e2e)', () => {
           imports: [ConfigModule],
           inject: [ConfigService],
           useFactory: (configService: ConfigService) => ({
-            type: 'postgres',
-            host: configService.get('TEST_DB_HOST'),
-            port: +configService.get('TEST_DB_PORT'),
-            username: configService.get('TEST_DB_USERNAME'),
-            password: configService.get('TEST_DB_PASSWORD'),
-            database: configService.get('TEST_DB_DATABASE'),
+            type: "postgres",
+            host: configService.get("TEST_DB_HOST"),
+            port: +configService.get("TEST_DB_PORT"),
+            username: configService.get("TEST_DB_USERNAME"),
+            password: configService.get("TEST_DB_PASSWORD"),
+            database: configService.get("TEST_DB_DATABASE"),
             autoLoadEntities: true,
             synchronize: true,
           }),
@@ -43,9 +43,9 @@ describe('Products - /products (e2e)', () => {
     await app.init();
   });
 
-  it('Create [POST /products]', () => {
+  it("Create [POST /products]", () => {
     return request(app.getHttpServer())
-      .post('/products')
+      .post("/products")
       .send(products as CreateProductDto)
       .expect(201)
       .then(({ body }) => {
@@ -53,26 +53,26 @@ describe('Products - /products (e2e)', () => {
       });
   });
 
-  it('Get all products [GET /products]', () => {
+  it("Get all products [GET /products]", () => {
     return request(app.getHttpServer())
-      .get('/products')
+      .get("/products")
       .expect(200)
       .then(({ body }) => {
         expect(body).toBeDefined();
       });
   });
 
-  it('Get one product [GET /products/:id]', () => {
+  it("Get one product [GET /products/:id]", () => {
     return request(app.getHttpServer())
-      .get('/products/2')
+      .get("/products/2")
       .expect(200)
       .then(({ body }) => {
         expect(body).toBeDefined();
       });
   });
 
-  it('Delete one product [DELETE /products/:id]', () => {
-    return request(app.getHttpServer()).delete('/products/1').expect(200);
+  it("Delete one product [DELETE /products/:id]", () => {
+    return request(app.getHttpServer()).delete("/products/1").expect(200);
   });
 
   afterAll(async () => {
