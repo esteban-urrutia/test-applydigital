@@ -4,8 +4,9 @@ import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
 
 const createProductDto: CreateProductDto = {
-  firstName: 'firstName #1',
-  lastName: 'lastName #1',
+  "name": "car 1",
+  "category": "cars",
+  "price": 10
 };
 
 describe('ProductsController', () => {
@@ -27,19 +28,30 @@ describe('ProductsController', () => {
               ),
             findAll: jest.fn().mockResolvedValue([
               {
-                firstName: 'firstName #1',
-                lastName: 'lastName #1',
+                "name": "car 1",
+                "category": "cars",
+                "price": 10
               },
               {
-                firstName: 'firstName #2',
-                lastName: 'lastName #2',
+                "name": "car 2",
+                "category": "cars",
+                "price": 10
               },
             ]),
             findOne: jest.fn().mockImplementation((id: string) =>
               Promise.resolve({
-                firstName: 'firstName #1',
-                lastName: 'lastName #1',
-                id,
+                "name": "car 1",
+                "category": "cars",
+                "price": 10,
+                id
+              }),
+            ),
+            update: jest.fn().mockImplementation((id: string) =>
+              Promise.resolve({
+                "name": "car 1",
+                "category": "cars",
+                "price": 10,
+                id
               }),
             ),
             remove: jest.fn(),
@@ -77,14 +89,45 @@ describe('ProductsController', () => {
   describe('findOne()', () => {
     it('should find a product', () => {
       expect(productsController.findOne(1)).resolves.toEqual({
-        firstName: 'firstName #1',
-        lastName: 'lastName #1',
+        name: 'car 1',
+        category: 'cars',
+        price: 10,
         id: 1,
       });
       expect(productsService.findOne).toHaveBeenCalled();
     });
   });
 
+  describe('update()', () => {
+    it('should update a product', () => {
+      const updateProductDto = {
+        name: 'car updated',
+        category: 'cars',
+        price: 15
+      };
+
+      // Mock the update method in the service
+      jest.spyOn(productsService, 'update').mockResolvedValue({
+        id: 1,
+        name: 'car updated',
+        category: 'cars',
+        price: 15,
+        date: new Date(),
+        deleted: false
+      });
+
+      expect(productsController.update(1, updateProductDto)).resolves.toEqual(
+        expect.objectContaining({
+          name: 'car updated',
+          category: 'cars',
+          price: 15
+        })
+      );
+
+      expect(productsService.update).toHaveBeenCalledWith(1, updateProductDto);
+    });
+  });
+  
   describe('remove()', () => {
     it('should remove the product', () => {
       productsController.remove('2');

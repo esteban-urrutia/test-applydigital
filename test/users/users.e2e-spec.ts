@@ -9,9 +9,10 @@ import { ProductsModule } from '../../src/products/products.module';
 describe('Products - /products (e2e)', () => {
   const products = {
     id: 1,
-    firstName: 'FirstName #1',
-    lastName: 'LastName #1',
-    isActive: true,
+    name: 'car 1',
+    category: 'cars',
+    price: 10,
+    date: new Date,
   };
 
   let app: INestApplication;

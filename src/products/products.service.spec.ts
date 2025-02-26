@@ -6,18 +6,21 @@ import { Repository } from 'typeorm';
 
 const productArray = [
   {
-    firstName: 'firstName #1',
-    lastName: 'lastName #1',
+    "name": "car 1",
+    "category": "cars",
+    "price": 10
   },
   {
-    firstName: 'firstName #2',
-    lastName: 'lastName #2',
+    "name": "car 2",
+    "category": "cars",
+    "price": 10
   },
 ];
 
 const oneProduct = {
-  firstName: 'firstName #1',
-  lastName: 'lastName #1',
+  name: 'car 1',
+  category: 'cars',
+  price: 10,
 };
 
 describe('ProductService', () => {
@@ -52,14 +55,16 @@ describe('ProductService', () => {
   describe('create()', () => {
     it('should successfully insert a product', () => {
       const oneProduct = {
-        firstName: 'firstName #1',
-        lastName: 'lastName #1',
+        name: 'car 1',
+        category: 'cars',
+        price: 10,
       };
 
       expect(
         service.create({
-          firstName: 'firstName #1',
-          lastName: 'lastName #1',
+          name: 'car 1',
+          category: 'cars',
+          price: 10,
         }),
       ).resolves.toEqual(oneProduct);
     });
@@ -80,6 +85,49 @@ describe('ProductService', () => {
     });
   });
 
+  describe('update()', () => {
+    it('should update a product successfully', async () => {
+      const updateProductDto = {
+        name: 'updated car',
+        price: 20
+      };
+
+      const existingProduct = {
+        id: 1,
+        name: 'car 1',
+        category: 'cars',
+        price: 10,
+        date: new Date(),
+        deleted: false
+      };
+
+      const updatedProduct = {
+        ...existingProduct,
+        ...updateProductDto
+      };
+
+      jest.spyOn(repository, 'findOneBy').mockResolvedValue(existingProduct);
+      jest.spyOn(repository, 'save').mockResolvedValue(updatedProduct);
+
+      const result = await service.update(1, updateProductDto);
+
+      expect(repository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+      expect(repository.save).toHaveBeenCalledWith(expect.objectContaining({
+        id: 1,
+        name: 'updated car',
+        category: 'cars',
+        price: 20
+      }));
+      expect(result).toEqual(updatedProduct);
+    });
+
+    it('should throw NotFoundException if product does not exist', async () => {
+      jest.spyOn(repository, 'findOneBy').mockResolvedValue(null);
+
+      await expect(service.update(999, { name: 'test' })).rejects.toThrow();
+    });
+  });
+  
   describe('remove()', () => {
     it('should call remove with the passed value', async () => {
       const removeSpy = jest.spyOn(repository, 'delete');
