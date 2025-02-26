@@ -13,8 +13,9 @@ export class ProductsService {
 
   create(createProductDto: CreateProductDto): Promise<Product> {
     const product = new Product();
-    product.firstName = createProductDto.firstName;
-    product.lastName = createProductDto.lastName;
+    product.name = createProductDto.name;
+    product.category = createProductDto.category;
+    product.price = createProductDto.price;
 
     return this.productsRepository.save(product);
   }
