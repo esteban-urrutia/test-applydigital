@@ -7,9 +7,9 @@ import {
   Post,
   Put,
   ParseIntPipe,
+  Query,
 } from "@nestjs/common";
 import { CreateProductDto } from "./dto/create-product.dto";
-import { UpdateProductDto } from "./dto/update-product.dto";
 import { Product } from "./product.entity";
 import { ProductsService } from "./products.service";
 
@@ -24,8 +24,22 @@ export class ProductsController {
 
   // Paginated results (max 5 per page) with ability to filter by category, date range and price range
   @Get()
-  findAll(): Promise<Product[]> {
-    return this.productsService.findAll();
+  findAll(
+    @Query("page") page: number = 1, // Default page to 1
+    @Query("category") category?: string, // Optional category filter
+    @Query("startDate") startDate?: string, // Optional start date filter
+    @Query("endDate") endDate?: string, // Optional end date filter
+    @Query("minPrice") minPrice?: number, // Optional min price filter
+    @Query("maxPrice") maxPrice?: number, // Optional max price filter
+  ): Promise<{ data: Product[]; total: number }> {
+    return this.productsService.findAll(
+      page,
+      category,
+      startDate,
+      endDate,
+      minPrice,
+      maxPrice,
+    );
   }
 
   @Get(":id")
