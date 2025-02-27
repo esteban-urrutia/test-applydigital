@@ -70,6 +70,144 @@ describe("ProductService", () => {
     });
   });
 
+  describe("findAll()", () => {
+    beforeEach(() => {
+      // Add findAndCount mock to the repository
+      repository.findAndCount = jest.fn();
+    });
+
+    it("should return paginated products with total count", async () => {
+      const page = 1;
+      const mockProducts = [
+        {
+          id: 1,
+          name: "car 1",
+          category: "cars",
+          price: 10,
+          date: new Date(),
+          deleted: false,
+        },
+        {
+          id: 2,
+          name: "car 2",
+          category: "cars",
+          price: 15,
+          date: new Date(),
+          deleted: false,
+        },
+      ];
+
+      const mockResult = {
+        data: mockProducts,
+        total: 2,
+      };
+
+      // Mock the findAndCount repository method
+      jest
+        .spyOn(repository, "findAndCount")
+        .mockResolvedValue([mockProducts, 2]);
+
+      const result = await service.findAll(page);
+
+      expect(result).toEqual(mockResult);
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          take: expect.any(Number),
+          skip: 0,
+          where: { deleted: false },
+        }),
+      );
+    });
+
+    it("should apply filters when provided", async () => {
+      const page = 1;
+      const category = "cars";
+      const startDate = "2023-01-01";
+      const endDate = "2023-12-31";
+      const minPrice = 5;
+      const maxPrice = 20;
+
+      const mockProducts = [
+        {
+          id: 1,
+          name: "car 1",
+          category: "cars",
+          price: 10,
+          date: new Date(),
+          deleted: false,
+        },
+      ];
+
+      // Mock the findAndCount repository method
+      jest
+        .spyOn(repository, "findAndCount")
+        .mockResolvedValue([mockProducts, 1]);
+
+      const result = await service.findAll(
+        page,
+        category,
+        startDate,
+        endDate,
+        minPrice,
+        maxPrice,
+      );
+
+      expect(result).toEqual({ data: mockProducts, total: 1 });
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            category: "cars",
+            deleted: false,
+          } as Record<string, unknown>),
+        }),
+      );
+    });
+
+    it("should include deleted products when includeDeleted is true", async () => {
+      const page = 1;
+      const mockProducts = [
+        {
+          id: 1,
+          name: "car 1",
+          category: "cars",
+          price: 10,
+          date: new Date(),
+          deleted: false,
+        },
+        {
+          id: 3,
+          name: "deleted car",
+          category: "cars",
+          price: 12,
+          date: new Date(),
+          deleted: true,
+        },
+      ];
+
+      jest
+        .spyOn(repository, "findAndCount")
+        .mockResolvedValue([mockProducts, 2]);
+
+      await service.findAll(
+        page,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        true,
+      );
+
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.not.objectContaining({
+            deleted: false,
+          }) as Record<string, unknown>,
+        }),
+      );
+    });
+  });
+
   describe("findOne()", () => {
     it("should get a single product", () => {
       const repoSpy = jest.spyOn(repository, "findOneBy");

@@ -34,6 +34,7 @@ export class ProductsService {
     endDate?: string,
     minPrice?: number,
     maxPrice?: number,
+    deleted: boolean = false,
   ): Promise<{ data: Product[]; total: number }> {
     const take = +process.env.MAX_ITEMS_PER_PAGE || 5; // Max items per page
     const skip = (page - 1) * take; // Calculate the number of items to skip
@@ -43,6 +44,11 @@ export class ProductsService {
       skip,
       where: {}, // Initialize where clause
     };
+
+    // Filter out deleted products if includeDeleted is false
+    if (deleted.toString() === "false") {
+      findOptions.where = { ...findOptions.where, deleted: false };
+    }
 
     // Add category filter if provided
     if (category) {

@@ -31,6 +31,7 @@ export class ProductsController {
     @Query("endDate") endDate?: string, // Optional end date filter
     @Query("minPrice") minPrice?: number, // Optional min price filter
     @Query("maxPrice") maxPrice?: number, // Optional max price filter
+    @Query("deleted") deleted: boolean = false, // Optional max price filter
   ): Promise<{ data: Product[]; total: number }> {
     return this.productsService.findAll(
       page,
@@ -39,6 +40,7 @@ export class ProductsController {
       endDate,
       minPrice,
       maxPrice,
+      deleted,
     );
   }
 
