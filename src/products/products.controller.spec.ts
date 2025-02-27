@@ -214,7 +214,7 @@ describe("ProductsController", () => {
   });
 
   describe("remove()", () => {
-    it("should remove the product", () => {
+    it("should mark the product as deleted", () => {
       const removeSpy = jest.spyOn(productsService, "remove");
       productsController.remove("2");
       expect(removeSpy).toHaveBeenCalledWith("2");

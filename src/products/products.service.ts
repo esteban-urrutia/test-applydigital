@@ -100,6 +100,12 @@ export class ProductsService {
   }
 
   async remove(id: string): Promise<void> {
-    await this.productsRepository.delete(id);
+    // Find the product first
+    const product = await this.productsRepository.findOneBy({ id: +id });
+    if (product) {
+      // Set deleted flag to true
+      product.deleted = true;
+      await this.productsRepository.save(product);
+    }
   }
 }

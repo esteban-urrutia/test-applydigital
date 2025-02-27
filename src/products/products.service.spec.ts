@@ -126,11 +126,40 @@ describe("ProductService", () => {
   });
 
   describe("remove()", () => {
-    it("should call remove with the passed value", async () => {
-      const removeSpy = jest.spyOn(repository, "delete");
-      const retVal = await service.remove("2");
-      expect(removeSpy).toBeCalledWith("2");
-      expect(retVal).toBeUndefined();
+    it("should mark a product as deleted", async () => {
+      const mockProduct = {
+        id: 2,
+        name: "Product to delete",
+        category: "test",
+        price: 15,
+        date: new Date(),
+        deleted: false,
+      };
+
+      const findOneBySpy = jest
+        .spyOn(repository, "findOneBy")
+        .mockResolvedValue(mockProduct);
+      const saveSpy = jest.spyOn(repository, "save");
+
+      await service.remove("2");
+
+      expect(findOneBySpy).toHaveBeenCalledWith({ id: 2 });
+      expect(saveSpy).toHaveBeenCalledWith({
+        ...mockProduct,
+        deleted: true,
+      });
+    });
+
+    it("should do nothing if product is not found", async () => {
+      const findOneBySpy = jest
+        .spyOn(repository, "findOneBy")
+        .mockResolvedValue(null);
+      const saveSpy = jest.spyOn(repository, "save");
+
+      await service.remove("999");
+
+      expect(findOneBySpy).toHaveBeenCalledWith({ id: 999 });
+      expect(saveSpy).not.toHaveBeenCalled();
     });
   });
 });
