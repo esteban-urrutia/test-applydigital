@@ -29,7 +29,11 @@ export class IngestionService {
     private readonly configService: ConfigService,
   ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(
+    (process.env.TESTMODE || "no").toLocaleLowerCase() === "yes"
+      ? CronExpression.EVERY_MINUTE
+      : CronExpression.EVERY_HOUR,
+  )
   async fetchAndSaveProducts() {
     try {
       this.logger.log("Starting to fetch products from external API...");
@@ -39,10 +43,10 @@ export class IngestionService {
       oneHourAgo.setHours(oneHourAgo.getHours() - 1);
 
       // Adding timestamp filter to only get entries from the last hour
-      const filterUrl = `${url}&sys.createdAt[gte]=2024-01-23T21:47:00.000Z`;
-      // const filterUrl = `${url}&sys.createdAt[gte]=${oneHourAgo.toISOString()}`;
-      //
-      // --> fixed date, due that external API stopped returning live data
+      const filterUrl =
+        (process.env.TESTMODE || "no").toLocaleLowerCase() === "yes"
+          ? `${url}&sys.createdAt[gte]=2024-01-23T21:47:00.000Z`
+          : `${url}&sys.createdAt[gte]=${oneHourAgo.toISOString()}`;
 
       const response = await axios.get<ContentfulResponse>(filterUrl);
       const items = response.data.items;
