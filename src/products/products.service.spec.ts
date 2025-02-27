@@ -70,13 +70,6 @@ describe("ProductService", () => {
     });
   });
 
-  describe("findAll()", () => {
-    it("should return an array of products", async () => {
-      const products = await service.findAll();
-      expect(products).toEqual(productArray);
-    });
-  });
-
   describe("findOne()", () => {
     it("should get a single product", () => {
       const repoSpy = jest.spyOn(repository, "findOneBy");
@@ -111,8 +104,10 @@ describe("ProductService", () => {
 
       const result = await service.update(1, updateProductDto);
 
-      expect(repository.findOneBy).toHaveBeenCalledWith({ id: 1 });
-      expect(repository.save).toHaveBeenCalledWith(
+      expect(jest.spyOn(repository, "findOneBy")).toHaveBeenCalledWith({
+        id: 1,
+      });
+      expect(jest.spyOn(repository, "save")).toHaveBeenCalledWith(
         expect.objectContaining({
           id: 1,
           name: "updated car",

@@ -26,18 +26,7 @@ describe("ProductsController", () => {
               .mockImplementation((product: CreateProductDto) =>
                 Promise.resolve({ id: "1", ...product }),
               ),
-            findAll: jest.fn().mockResolvedValue([
-              {
-                name: "car 1",
-                category: "cars",
-                price: 10,
-              },
-              {
-                name: "car 2",
-                category: "cars",
-                price: 10,
-              },
-            ]),
+            findAll: jest.fn(),
             findOne: jest.fn().mockImplementation((id: string) =>
               Promise.resolve({
                 name: "car 1",
@@ -70,31 +59,125 @@ describe("ProductsController", () => {
 
   describe("create()", () => {
     it("should create a product", () => {
-      productsController.create(createProductDto);
+      const createSpy = jest.spyOn(productsService, "create");
+
       expect(productsController.create(createProductDto)).resolves.toEqual({
         id: "1",
         ...createProductDto,
       });
-      expect(productsService.create).toHaveBeenCalledWith(createProductDto);
+      expect(createSpy).toHaveBeenCalledWith(createProductDto);
     });
   });
 
   describe("findAll()", () => {
-    it("should find all products ", () => {
-      productsController.findAll();
-      expect(productsService.findAll).toHaveBeenCalled();
+    it("should return paginated products with default parameters", async () => {
+      const mockProducts = {
+        data: [
+          {
+            id: 1,
+            name: "car 1",
+            category: "cars",
+            price: 10,
+            date: new Date(),
+            deleted: false,
+          },
+          {
+            id: 2,
+            name: "car 2",
+            category: "cars",
+            price: 20,
+            date: new Date(),
+            deleted: false,
+          },
+        ],
+        total: 2,
+      };
+
+      // Mock the findAll method
+      const findAllSpy = jest
+        .spyOn(productsService, "findAll")
+        .mockResolvedValue(mockProducts);
+
+      // Call controller with default parameters
+      const result = await productsController.findAll();
+
+      // Verify service was called with expected parameters
+      expect(findAllSpy).toHaveBeenCalledWith(
+        1,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      // Verify controller returns expected response
+      expect(result).toEqual(mockProducts);
+    });
+
+    it("should apply filters when provided", async () => {
+      const mockFilteredProducts = {
+        data: [
+          {
+            id: 1,
+            name: "luxury car",
+            category: "luxury",
+            price: 100,
+            date: new Date("2023-01-15"),
+            deleted: false,
+          },
+        ],
+        total: 1,
+      };
+
+      // Mock the findAll method for filtered results
+      const findAllSpy = jest
+        .spyOn(productsService, "findAll")
+        .mockResolvedValue(mockFilteredProducts);
+
+      // Call with filter parameters
+      const page = 2;
+      const category = "luxury";
+      const startDate = "2023-01-01";
+      const endDate = "2023-01-31";
+      const minPrice = 50;
+      const maxPrice = 150;
+
+      const result = await productsController.findAll(
+        page,
+        category,
+        startDate,
+        endDate,
+        minPrice,
+        maxPrice,
+      );
+
+      // Verify service called with provided filters
+      expect(findAllSpy).toHaveBeenCalledWith(
+        page,
+        category,
+        startDate,
+        endDate,
+        minPrice,
+        maxPrice,
+      );
+
+      // Verify filtered result is returned
+      expect(result).toEqual(mockFilteredProducts);
     });
   });
 
   describe("findOne()", () => {
     it("should find a product", () => {
+      const findOneSpy = jest.spyOn(productsService, "findOne");
+
       expect(productsController.findOne(1)).resolves.toEqual({
         name: "car 1",
         category: "cars",
         price: 10,
         id: 1,
       });
-      expect(productsService.findOne).toHaveBeenCalled();
+      expect(findOneSpy).toHaveBeenCalled();
     });
   });
 
@@ -107,14 +190,16 @@ describe("ProductsController", () => {
       };
 
       // Mock the update method in the service
-      jest.spyOn(productsService, "update").mockResolvedValue({
-        id: 1,
-        name: "car updated",
-        category: "cars",
-        price: 15,
-        date: new Date(),
-        deleted: false,
-      });
+      const updateSpy = jest
+        .spyOn(productsService, "update")
+        .mockResolvedValue({
+          id: 1,
+          name: "car updated",
+          category: "cars",
+          price: 15,
+          date: new Date(),
+          deleted: false,
+        });
 
       expect(productsController.update(1, updateProductDto)).resolves.toEqual(
         expect.objectContaining({
@@ -124,14 +209,15 @@ describe("ProductsController", () => {
         }),
       );
 
-      expect(productsService.update).toHaveBeenCalledWith(1, updateProductDto);
+      expect(updateSpy).toHaveBeenCalledWith(1, updateProductDto);
     });
   });
 
   describe("remove()", () => {
     it("should remove the product", () => {
+      const removeSpy = jest.spyOn(productsService, "remove");
       productsController.remove("2");
-      expect(productsService.remove).toHaveBeenCalled();
+      expect(removeSpy).toHaveBeenCalledWith("2");
     });
   });
 });
