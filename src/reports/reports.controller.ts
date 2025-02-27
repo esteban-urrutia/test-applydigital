@@ -10,9 +10,18 @@ export class ReportsController {
     return this.reportsService.getDeletedProductsPercentage();
   }
 
-  @Get("non-deleted-products")
-  async getNonDeletedProductsPercentage() {
+  @Get("non-deleted-products-with-price")
+  async getNonDeletedProductsWithPricePercentage() {
     return this.reportsService.getNonDeletedProductsPercentage();
+  }
+
+  @Get("non-deleted-products-without-price")
+  async getNonDeletedProductsWithoutPricePercentage() {
+    const priceStats = await this.reportsService.getPriceStats();
+    return {
+      total: priceStats.withoutPrice.total,
+      percentage: priceStats.withoutPrice.percentage,
+    };
   }
 
   @Get("price-stats")
