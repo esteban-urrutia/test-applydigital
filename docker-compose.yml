@@ -10,6 +10,9 @@ services:
       POSTGRES_DB: test
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      
   db-test:
     image: postgres:15
     restart: always
@@ -19,3 +22,29 @@ services:
       POSTGRES_DB: test
     ports:
       - "5433:5432"
+      
+  api:
+    build: .
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - DB_DATABASE=test
+      - PORT=3000
+      - MAX_ITEMS_PER_PAGE=5
+      - JWT_SECRET=example_jwt_token
+      - TESTMODE=yes
+      - CONTENTFUL_SPACE_ID=9xs1613l9f7v
+      - CONTENTFUL_ACCESS_TOKEN=I-ThsT55eE_B3sCUWEQyDT4VqVO3x__20ufuie9usns
+      - CONTENTFUL_ENVIRONMENT=master
+      - CONTENTFUL_CONTENT_TYPE=product
+      - CONTENTFUL_URL=https://cdn.contentful.com/spaces/CONTENTFUL_SPACE_ID/environments/CONTENTFUL_ENVIRONMENT/entries?access_token=CONTENTFUL_ACCESS_TOKEN&content_type=CONTENTFUL_CONTENT_TYPE
+
+volumes:
+  postgres_data:
