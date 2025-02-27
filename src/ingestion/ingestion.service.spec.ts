@@ -16,7 +16,7 @@ describe("IngestionService", () => {
   let productRepository: Repository<Product>;
   let configService: ConfigService;
 
-  // Mock response data that matches ContentfulResponse interface
+  // Mock response data that matches external api Response interface
   const mockApiResponse = {
     data: {
       items: [

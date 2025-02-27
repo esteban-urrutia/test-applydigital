@@ -46,17 +46,17 @@ export class IngestionService {
       const filterUrl =
         !process.env.TESTMODE ||
         process.env.TESTMODE.toLocaleLowerCase() === "yes"
-          ? `${url}&sys.createdAt[gte]=2024-01-23T21:47:00.000Z`
+          ? `${url}&sys.createdAt[gte]=2024-01-23T21:44:00.000Z`
           : `${url}&sys.createdAt[gte]=${oneHourAgo.toISOString()}`;
 
       const response = await axios.get<ContentfulResponse>(filterUrl);
       const items = response.data.items;
 
-      this.logger.log(`Fetched ${items.length} products from API`);
-
       for (const item of items) {
         await this.saveProductFromContentful(item);
       }
+
+      this.logger.log(`Fetched ${items.length} products from API`);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
