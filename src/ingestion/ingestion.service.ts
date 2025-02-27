@@ -30,7 +30,7 @@ export class IngestionService {
   ) {}
 
   @Cron(
-    (process.env.TESTMODE || "no").toLocaleLowerCase() === "yes"
+    !process.env.TESTMODE || process.env.TESTMODE.toLocaleLowerCase() === "yes"
       ? CronExpression.EVERY_MINUTE
       : CronExpression.EVERY_HOUR,
   )
@@ -44,7 +44,8 @@ export class IngestionService {
 
       // Adding timestamp filter to only get entries from the last hour
       const filterUrl =
-        (process.env.TESTMODE || "no").toLocaleLowerCase() === "yes"
+        !process.env.TESTMODE ||
+        process.env.TESTMODE.toLocaleLowerCase() === "yes"
           ? `${url}&sys.createdAt[gte]=2024-01-23T21:47:00.000Z`
           : `${url}&sys.createdAt[gte]=${oneHourAgo.toISOString()}`;
 

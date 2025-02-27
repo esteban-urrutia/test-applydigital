@@ -7,7 +7,10 @@ async function bootstrap() {
   await app.listen(port);
   console.log(`Application is running on: ${await app.getUrl()}`);
 
-  if ((process.env.TESTMODE || "no").toLocaleLowerCase() === "yes") {
+  if (
+    !process.env.TESTMODE ||
+    process.env.TESTMODE.toLocaleLowerCase() === "yes"
+  ) {
     console.log(
       "\n\n- - - - - - - - TEST MODE ENABLED - - - - - - - -\n\n Fetching every minute for easy testing and from a fixed moment, due that external API stopped returning live data.\n\n",
     );
